@@ -12,7 +12,8 @@ router.post('/', async (req, res) => {
     if (!firstName || !lastName || !email) {
       return res.status(400).send('First name, last name, and email are required');
     }
-    await createContact(firstName, lastName, email);
+    const contactId = await createContact(firstName, lastName, email);
+    console.log("contactId:" + contactId)
     res.status(201).send('Contact saved');
   } catch (error) {
     console.error('Error in POST /emails:', error);
