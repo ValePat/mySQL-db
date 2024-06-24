@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/srv/index.js",
+      "program": "${workspaceFolder}/srv/test-connection.js",
       "skipFiles": ["<node_internals>/**"]
     }
   ]

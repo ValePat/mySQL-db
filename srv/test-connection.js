@@ -1,40 +1,35 @@
 const mysql = require('mysql2/promise');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config(); // Carica le variabili d'ambiente dal file .env
 
-// Create a connection pool using mysql2/promise
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+// Creazione della connessione al database
+const pool  = mysql.createPool({
+    host: 'sql7.freesqldatabase.com',
+    user: 'sql7715739',
+    password: 'T2jcFFSa9v',
+    database: 'sql7715739'
 });
 
-// Ensure to handle errors in an async function
+// Esempio di query
 async function testDatabaseConnection() {
-  let connection;
-  try {
-    // Get a connection from the pool
-    connection = await pool.getConnection();
-
-    // Query using the connection
-    const [rows, fields] = await connection.query('SELECT * FROM Contacts');
-
-    console.log(rows); // Output the query result
-
-  } catch (error) {
-    console.error('Error querying database:', error);
-  } finally {
-    // Release the connection back to the pool
-    if (connection) {
+    try {
+      // Get a connection from the pool
+      const connection = await pool.getConnection();
+  
+      // Execute a query
+      const [rows, fields] = await connection.query('SELECT * FROM Contacts');
+  
+      // Output the query result
+      console.log('Query result:', rows);
+  
+      // Release the connection back to the pool
       connection.release();
+    } catch (error) {
+      console.error('Failed to query the database:', error.message);
+      throw error;
+    } finally {
+      // End the pool when done
+      pool.end();
     }
-    // Don't end the pool here; manage the pool lifecycle appropriately
   }
-}
-
-// Call the async function to test the database connection
-testDatabaseConnection();
+  
+  testDatabaseConnection();

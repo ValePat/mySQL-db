@@ -12,12 +12,5 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-pool.on('connection', (connection) => {
-  console.log('MySQL pool connected: threadId ' + connection.threadId);
-});
-
-pool.on('error', (err) => {
-  console.error('MySQL pool encountered an error:', err);
-});
 
 module.exports = pool.promise();

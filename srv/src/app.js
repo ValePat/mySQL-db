@@ -14,7 +14,6 @@ app.get('/', (req, res) => {
 
 // Log per verificare l'uso del router
 console.log('Setting up /emails route');
-
 app.use('/emails', emailsRoute);
 
 module.exports = app;
