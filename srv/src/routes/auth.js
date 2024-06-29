@@ -61,15 +61,19 @@ router.get("/getData", authenticateToken, async (req, res) => {
 });
 
 router.post("/users/register", async (req, res) => {
+    
     try {
         const hashedPassword = await bcrypt.hash(req.body.PASSWORD, 10);
-        const user = { EMAIL: req.body.EMAIL, USER_NAME: req.body.USER_NAME, PASSWORD: hashedPassword };
-        //const sInsert = 'INSERT INTO USERS (EMAIL, USER_NAME, PASSWORD) VALUES (?, ?, ?)';
-        const sInsert = 'INSERT INTO USERS (USER_NAME, PASSWORD) VALUES (?, ?)';
-        //const result = await db.execute(sInsert, [user.EMAIL, user.USER_NAME, user.PASSWORD]);
-        const result = await db.execute(sInsert, [user.EMAIL, user.USER_NAME, user.PASSWORD]);
-
-        res.status(201).send(result);
+        const user = { EMAIL: req.body.USER_EMAIL, USER_NAME: req.body.USER_NAME, PASSWORD: hashedPassword };
+        const sSelect = 'SELECT * FROM USERS WHERE USER_EMAIL = ?';
+        const duplicate = await db.execute(sSelect, [user.EMAIL]);
+        if(duplicate[0].length > 0){
+            res.status(500).send("Account già registrato");
+        } else {
+            const sInsert = 'INSERT INTO USERS (USER_EMAIL, USER_NAME, PASSWORD) VALUES (?, ?, ?)';
+            const result = await db.execute(sInsert, [user.EMAIL, user.USER_NAME, user.PASSWORD]);
+            res.status(201).send(result);
+        }
     } catch (e) {
         res.status(500).send(e);
     }
@@ -82,7 +86,7 @@ router.post("/users/login", async (req, res) => {
     const rows = await db.execute(sSelect, [USER_NAME]);
     const dbUser = rows[0];
 
-    if (!dbUser) {
+    if (!dbUser || dbUser.length == 0) {
         return res.status(400).send("Cannot find user");
     }
 
@@ -162,7 +166,7 @@ function authenticateToken(req, res, next) {
 function generateAccessToken(jwtUser) {
     try{
 
-        return jwt.sign(jwtUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' })
+        return jwt.sign(jwtUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     } catch (e) {
         console.log(e)
     }
