@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaMapMarker } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useAuth } from '../components/shared/AuthContext';
 
 const JobPage = ({ deleteJob }) => {
+  const {isAuthenticated} = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const [job, setJob] = useState(null);
@@ -30,6 +32,13 @@ const JobPage = ({ deleteJob }) => {
 
   const onDeleteClick = async (jobId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this job?');
+
+    if(!isAuthenticated) {
+      navigate('/Login');
+      return;
+    }
+
+
     if (!confirmDelete) {
       return;
     }
@@ -67,8 +76,8 @@ const JobPage = ({ deleteJob }) => {
                 <div className="text-gray-500 mb-4">{job.type}</div>
                 <h1 className="text-3xl font-bold mb-4">{job.title}</h1>
                 <div className="text-gray-500 mb-4 flex align-middle justify-center md:justify-start">
-                  <FaMapMarker className="text-orange-700 mr-2" />
-                  <p className="text-orange-700">{job.location}</p>
+                  <FaMapMarker className="text-orange-400 mr-2" />
+                  <p className="text-orange-400">{job.location}</p>
                 </div>
               </div>
 
@@ -103,7 +112,7 @@ const JobPage = ({ deleteJob }) => {
                 </Link>
                 <button
                   onClick={() => onDeleteClick(job.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
+                  className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block"
                 >
                   Delete Job
                 </button>

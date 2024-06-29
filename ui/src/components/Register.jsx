@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { Navigate, useNavigate } from 'react-router-dom';
+
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
+  const [isRegistered, setRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleClick = (e) => {
+    navigate('/Login')
+  };
+
   const handleSubmit = async (e) => {
+    const USER_EMAIL = email;
     const USER_NAME = username;
     const PASSWORD = password;
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/users/register', {USER_NAME, PASSWORD});
+      const response = await axios.post('/api/auth/users/register', {USER_EMAIL,USER_NAME, PASSWORD});
+      setRegister(true);
       console.log('Succesfully registered', response.data);
       toast.success('Succesfully registered');
+      navigate('/Login')
     } catch (error) {
       console.error('Error saving contact:', error);
+      toast.error(error.response.data || 'Something went wrong')
     } 
   };
 
   return (
     <div className="container m-auto max-w-2xl py-24 flex justify-center items-center min-h-screen">
+      <ToastContainer></ToastContainer>
       <div className="w-[80%] md:max-w-[500px] bg-white px-6 py-8 mb-4 shadow-md rounded-md border md:m-0">
         <form className=" max-w-[500px] m-auto" onSubmit={handleSubmit}>
         <h2 className="text-3xl text-center font-bold mb-6">Register</h2>

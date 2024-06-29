@@ -20,9 +20,6 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Email Collector API');
 });
 
-// Log per verificare l'uso del router
-console.log('Setting up /emails route');
-
 // Imposta route per /emails
 app.use('/emails', emailsRoute);
 
