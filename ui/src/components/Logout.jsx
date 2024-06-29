@@ -1,19 +1,25 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../components/shared/AuthContext';
+import { toast } from 'react-toastify';
 
 const LogoutButton = () => {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    try{
+      const response = await axios.get('/api/auth/logout', { withCredentials: true });
+    } catch (e){
+      console.log(e)
+    }
     await logout();
-    navigate('/Login');
+    toast.success('Succesfully logged out')
   };
 
   return (
     <button
-      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full"
+      className={!isAuthenticated? 'hidden' : 'bg-indigo-950 hover:bg-indigo-900 text-white font-bold py-2 px-4 rounded-full'}
       onClick={handleLogout}
     >
       Logout

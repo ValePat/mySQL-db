@@ -10,6 +10,7 @@ import EditJobPage from './pages/EditJobPage';
 import NotFoundPage from './pages/NotFoundPage';
 import JobsPage from './pages/JobsPage';
 import JobPage, {jobLoader} from './pages/JobPage';
+import Register from './components/Register';
 
 import { addJob, deleteJob, updateJob } from './components/shared/ApiService';
 import { HistoryProvider } from './components/shared/HistoryProvider';
@@ -21,7 +22,10 @@ const App = () => (
   <Router>
     <HistoryProvider>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/">
+          <Route path="/Login" element={<LoginPage />} />
+          <Route path="/Register" element={<Register />} />
+        </Route>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="/jobs" index element={<JobsPage/>} />
