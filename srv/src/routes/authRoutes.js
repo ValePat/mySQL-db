@@ -1,10 +1,10 @@
 // src/routes/emails.js
+const { authenticateToken, generateAccessToken } = require ('../services/authService');
 const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 const jwt = require ('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { route } = require('./emails');
 require('dotenv').config();
 
 router.get("/", (req, res) => {
@@ -60,8 +60,7 @@ router.get("/getData", authenticateToken, async (req, res) => {
     res.status(201).send(data);
 });
 
-router.post("/users/register", async (req, res) => {
-    
+router.post("/users/register", async (req, res) => {    
     try {
         const hashedPassword = await bcrypt.hash(req.body.PASSWORD, 10);
         const user = { EMAIL: req.body.USER_EMAIL, USER_NAME: req.body.USER_NAME, PASSWORD: hashedPassword };
@@ -148,28 +147,5 @@ router.delete('/users/logout', async (req, res) => {
         res.status(500).send(e);
     }
 });
-
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    const accessToken = token || req.cookies.accessToken; // Check cookie if no auth header
-
-    if (!accessToken) return res.status(401).send("Permission denied");
-
-    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-};
-
-function generateAccessToken(jwtUser) {
-    try{
-
-        return jwt.sign(jwtUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
-    } catch (e) {
-        console.log(e)
-    }
-};
 
 module.exports = router;

@@ -1,6 +1,6 @@
 // src/routes/emails.js
 const express = require('express');
-const { createContact } = require('../db/emailService');
+const { createContact } = require('../services/emailService');
 const router = express.Router();
 
 // Endpoint POST per creare un nuovo contatto

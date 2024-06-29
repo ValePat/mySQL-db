@@ -1,5 +1,5 @@
 // src/db/emailService.js
-const pool = require('./database');
+const pool = require('../db/database');
 
 const createContact = async (firstName, lastName, email) => {
   try {
