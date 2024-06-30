@@ -9,34 +9,34 @@ import AddJobs from './pages/AddJobPage';
 import EditJobPage from './pages/EditJobPage';
 import NotFoundPage from './pages/NotFoundPage';
 import JobsPage from './pages/JobsPage';
-import JobPage, {jobLoader} from './pages/JobPage';
+import JobPage from './pages/JobPage';
 import Register from './components/Register';
-
-import { addJob, deleteJob, updateJob } from './components/shared/ApiService';
 import { HistoryProvider } from './components/shared/HistoryProvider';
-
+import { JobsProvider } from './components/shared/JobsContext';
 
 const App = () => (
   
-  <AuthProvider>
-  <Router>
-    <HistoryProvider>
-      <Routes>
-        <Route path="/">
-          <Route path="/Login" element={<LoginPage />} />
-          <Route path="/Register" element={<Register />} />
-        </Route>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="/jobs" index element={<JobsPage/>} />
-          <Route path="/add-job" index element={<ProtectedRoute><AddJobs addJobSubmit={addJob} /></ProtectedRoute>} />
-          <Route path="/jobs/:id" index element={<JobPage deleteJob={deleteJob} />} loader={jobLoader} />
-          <Route path="/edit-job/:id" index element={<ProtectedRoute><EditJobPage updateJob={updateJob} /></ProtectedRoute>} loader={jobLoader} />
-          <Route path="*" index element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </HistoryProvider>
-  </Router>
+<AuthProvider>
+    <Router>
+      <HistoryProvider>
+        <JobsProvider>
+        <Routes>
+          <Route path="/">
+            <Route path="/Login" element={<LoginPage />} />
+            <Route path="/Register" element={<Register />} />
+          </Route>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="/jobs" index element={<JobsPage/>} />
+            <Route path="/add-job" index element={<ProtectedRoute><AddJobs/></ProtectedRoute>} />
+            <Route path="/jobs/:id" index element={<JobPage />}/>
+            <Route path="/edit-job/:id" index element={<ProtectedRoute><EditJobPage /></ProtectedRoute>}/>
+            <Route path="*" index element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+        </JobsProvider>
+      </HistoryProvider>
+    </Router>
 </AuthProvider>
 );
 

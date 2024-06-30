@@ -2,9 +2,11 @@ import { useParams, useLoaderData, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useJobs } from '../components/shared/JobsContext';
 
-const EditJobPage = ({updateJob}) => {
 
+const EditJobPage = () => {
+const { fetchJob, updateJob } = useJobs();
 const navigate = useNavigate();
 const [job, setJob] = useState(null);
 const {id} = useParams();
@@ -20,14 +22,9 @@ const [contactEmail, setContactEmail] = useState('');
 const [contactPhone, setContactPhone] = useState('');
 
 useEffect(() => {
-  const fetchJob = async () => {
+  const loadJobs = async () => {
     try {
-      const res = await fetch(`/api/jobs/${id}`); // Adjust URL if necessary
-      if (!res.ok) {
-        throw new Error('Failed to fetch job');
-      }
-      const data = await res.json();
-
+      const data = await fetchJob(id);
       setJob(data);
       setTitle(data.title || '');
       setType(data.type || '');
@@ -38,14 +35,13 @@ useEffect(() => {
       setCompanyDescription(data.company.description || '');
       setContactEmail(data.company.contactEmail || '');
       setContactPhone(data.company.contactPhone || '');
-
-    } catch (error) {
-      console.error('Error fetching job:', error);
+    } catch (e) {
+      console.log('error fetching data:' + error);
     } finally {
       setLoading(false);
     }
   };
-  fetchJob();
+  loadJobs();
 }, [id]);
 
 const submitForm = async (e) => {

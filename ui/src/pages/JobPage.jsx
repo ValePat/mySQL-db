@@ -2,26 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaMapMarker } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useJobs } from '../components/shared/JobsContext';
 import { useAuth } from '../components/shared/AuthContext';
+import Spinner from '../components/Spinner';
 
-const JobPage = ({ deleteJob }) => {
-  const {isAuthenticated} = useAuth();
+const JobPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const {isAuthenticated} = useAuth();
+  const { fetchJobs, deleteJob, error } = useJobs();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const res = await fetch(`/api/jobs/${id}`); 
-        if (!res.ok) {
-          throw new Error('Failed to fetch job');
-        }
-        const data = await res.json();
+        const isHome = false;
+        const data = await fetchJobs(isHome, id);
         setJob(data);
-      } catch (error) {
-        console.error('Error fetching job:', error);
+      } catch (e) {
+        console.log('error fetching data:' + error);
       } finally {
         setLoading(false);
       }
@@ -53,11 +54,6 @@ const JobPage = ({ deleteJob }) => {
     }
   };
 
-
-  if (loading) {
-    return (<></>);
-  }
-
   return (
     <>
        <section>
@@ -70,6 +66,11 @@ const JobPage = ({ deleteJob }) => {
 
       <section className="bg-indigo-50">
         <div className="container m-auto py-10 px-6">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Spinner loading={loading} />
+          </div>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-70/30 w-full gap-6">
             <main>
               <div className="bg-white p-6 rounded-lg shadow-md text-center md:text-left">
@@ -119,24 +120,11 @@ const JobPage = ({ deleteJob }) => {
               </div>
             </aside>
           </div>
+        )}
         </div>
       </section>
          </>
   );
 };
 
-const jobLoader = async ({ params }) => {
-  try {
-    const res = await fetch(`/api/jobs/${params.id}`);
-    if (!res.ok) {
-      throw new Error('Failed to load job data');
-    }
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error('Error loading job data:', error);
-    return null;
-  }
-};
-
-export { JobPage as default, jobLoader };
+export  default JobPage

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-const AddJobPage = ({addJobSubmit}) => {
+import { useJobs } from '../components/shared/JobsContext';
+const AddJobPage = () => {
   const navigate = useNavigate();
-  
+  const { addJob } = useJobs();
   const [title, setTitle] = useState('');
   const [type, setType] = useState('Full-Time');
   const [location, setLocation] = useState('');
@@ -31,7 +32,7 @@ const AddJobPage = ({addJobSubmit}) => {
     };
 
     console.log(newJob);
-    await addJobSubmit(newJob);
+    await addJob(newJob);
     toast.success('Job added succesfully')
     navigate('/jobs');
   };
