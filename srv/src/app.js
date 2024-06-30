@@ -16,15 +16,10 @@ app.use(cors({
   credentials: true
 }));
 
-// Endpoint di benvenuto o conferma
 app.get('/', (req, res) => {
-  res.send('Welcome to the Email Collector API');
+  res.send('Welcome to React Jobs');
 });
 
-// Imposta route per /emails
-app.use('/emails', emailsRoute);
-
-// Imposta route per /emails
 app.use('/auth', authRoute);
 
 app.use('/jobs', jobsRoute)
