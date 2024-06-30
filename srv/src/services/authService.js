@@ -20,7 +20,6 @@ function authenticateToken(req, res, next) {
 
 function generateAccessToken(jwtUser) {
     try{
-
         return jwt.sign(jwtUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
     } catch (e) {
         console.log(e)

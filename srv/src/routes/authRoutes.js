@@ -11,7 +11,6 @@ router.get("/", (req, res) => {
     res.status(200).send("auth route is working")
 });
 
-//Check authorization for ui display functionalities
 router.get('/authCheck', (req, res) => {
   const accessToken = req.cookies.accessToken;
   const refreshToken = req.cookies.refreshToken;
@@ -44,20 +43,8 @@ router.get('/authCheck', (req, res) => {
   }
 });
 
-//Authorize
 router.get("/authorize", authenticateToken, async (req, res) => {
     res.status(201).send("Authorized");
-});
-
-//Get sensible data
-router.get("/getData", authenticateToken, async (req, res) => {
-    
-    try{
-        const data = await db.query('SELECT * FROM Contacts');
-    }catch (e) {
-        res.status(500).send(e)
-    }
-    res.status(201).send(data);
 });
 
 router.post("/users/register", async (req, res) => {    
