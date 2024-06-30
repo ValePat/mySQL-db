@@ -11,13 +11,14 @@ export const JobsProvider = ({ children }) => {
     const fetchJobs = async (isHome, id) => {
 
       if(id !== '' && id !== undefined  && id !== null){
-        apiUrl = `/api/jobs/${id}`
+        apiUrl = `/api/jobs/getJobs/id:${id}`
       } else {
-        apiUrl = isHome ? '/api/jobs?_limit=3' : '/api/jobs';
+        apiUrl = isHome ? '/api/jobs/getJobs/?_limit=3' : '/api/jobs/getJobs';
       }
 
       try {
-        const res = await fetch(apiUrl);
+        const res = await axios.get(apiUrl, { withCredentials: true });
+        //const res = await fetch(apiUrl);
         const data = await res.json();
         //setJobs(data);
         return data;
