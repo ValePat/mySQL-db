@@ -5,19 +5,35 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const storedAuthState = Cookies.get('isAuthenticated');
-    return storedAuthState === 'true' || false;
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState();
+
+  const checkAuth = async () => {
+    const storedAuthState = Cookies.get('isAuthenticated');    
+    if (storedAuthState === "true"){
+      const tokenResult = await refreshToken();
+      if (tokenResult.status !== 200) {
+        logout();
+      } else if (tokenResult.status === 200) {
+        console.log("token refreshed")
+      }
+    } else if (storedAuthState !== undefined && storedAuthState !== null) {
+      logout();
+    }
+  }
 
   const login = () => {
     setIsAuthenticated(true);
-    Cookies.set('isAuthenticated', 'true', { expires: 7 });
+    var date = new Date();
+    var minutes = 30;
+    date.setTime(date.getTime() + (minutes * 60 * 1000));
+    Cookies.set('isAuthenticated', 'true', { expires: date });
   };
 
   const logout = async() => {
     setIsAuthenticated(false);
     Cookies.remove('isAuthenticated');
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
     try{
       await axios.delete('/api/auth/users/logout', { withCredentials: true });
     }catch(e){
@@ -25,26 +41,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const clearAuth = async () => {
-    setIsAuthenticated(false);
-    Cookies.remove('isAuthenticated');
+  const refreshToken = async () => {
     try{
-      await axios.delete('/api/users/logout');
+      const res = await axios.post('/api/auth/users/refresh',  { withCredentials: true });
+      return res;
     }catch(e){
       console.log(e)
     }
-  };
-
-
-  useEffect(() => {
-    var date = new Date();
-    var minutes = 30;
-    date.setTime(date.getTime() + (minutes * 60 * 1000));
-    Cookies.set('isAuthenticated', isAuthenticated ? 'true' : 'false', { expires: date });
-  }, [isAuthenticated]);
+  }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, clearAuth }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, refreshToken, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useJobs } from '../components/shared/JobsContext';
+import { useAuth } from "../components/shared/AuthContext";
+
 const AddJobPage = () => {
   const navigate = useNavigate();
   const { addJob } = useJobs();
@@ -14,6 +16,9 @@ const AddJobPage = () => {
   const [companyDescription, setCompanyDescription] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
+  const {checkAuth} = useAuth();
+
+  checkAuth();
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -32,9 +37,15 @@ const AddJobPage = () => {
     };
 
     console.log(newJob);
-    await addJob(newJob);
-    toast.success('Job added succesfully')
+    const res = await addJob(newJob);
+    console.log(res);
+    if(res.status === 201) {
+      toast.success('Job added succesfully')
+    } else {
+      toast.error('Something went wrong')
+    }
     navigate('/jobs');
+      
   };
 
   return (

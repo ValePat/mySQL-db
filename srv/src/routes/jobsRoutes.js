@@ -143,7 +143,7 @@ router.get('/getJobs/:id', authenticateToken, async (req, res) => {
 });
 
 router.post('/addJob', authenticateToken, async (req, res) =>{
-    const { title, type, description, location, salary, company } = req.body.job;
+    const { title, type, description, location, salary, company } = req.body;
     const insert = ` INSERT INTO JOBS (title, type, description, location, salary, company_name, company_description, company_contactEmail, company_contactPhone)
     VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -183,7 +183,7 @@ router.delete('/deleteJob/:id', authenticateToken, async (req, res) => {
 
 router.put('/updateJob/:id', authenticateToken, async (req, res) => {
     const {id} = req.params;
-    const { title, type, description, location, salary, company } = req.body.job;
+    const { title, type, description, location, salary, company } = req.body;
     const statement = `
         UPDATE JOBS
         SET title = ?, type = ?, description = ?, location = ?, salary = ?,
@@ -212,7 +212,6 @@ router.put('/updateJob/:id', authenticateToken, async (req, res) => {
         res.status(500).send("Error deleting job with id:" + id)
     }
 })
-
 
 router.get('/createJobsTable', async (req, res) => {
     const createTableQuery = `

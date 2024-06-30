@@ -13,6 +13,8 @@ const JobPage = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
+  const {checkAuth} = useAuth();
+  checkAuth();
 
 
   useEffect(() => {
@@ -20,7 +22,7 @@ const JobPage = () => {
       try {
         const isHome = false;
         const data = await fetchJobs(isHome, id);
-        setJob(data);
+        setJob(data[0]);
       } catch (e) {
         console.log('error fetching data:' + error);
       } finally {
@@ -94,13 +96,13 @@ const JobPage = () => {
             <aside>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-xl font-bold mb-6">Company Info</h3>
-                <h2 className="text-2xl">{job.company.name}</h2>
-                <p className="my-2">{job.company.description}</p>
+                <h2 className="text-2xl">{job.company_name}</h2>
+                <p className="my-2">{job.company_description}</p>
                 <hr className="my-4" />
                 <h3 className="text-xl">Contact Email:</h3>
-                <p className="my-2 bg-indigo-100 p-2 font-bold">{job.company.contactEmail}</p>
+                <p className="my-2 bg-indigo-100 p-2 font-bold">{job.company_contactEmail}</p>
                 <h3 className="text-xl">Contact Phone:</h3>
-                <p className="my-2 bg-indigo-100 p-2 font-bold">{job.company.contactPhone}</p>
+                <p className="my-2 bg-indigo-100 p-2 font-bold">{job.company_contactPhone}</p>
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow-md mt-6">

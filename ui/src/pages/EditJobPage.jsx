@@ -3,62 +3,67 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useJobs } from '../components/shared/JobsContext';
+import { useAuth } from "../components/shared/AuthContext";
 
 
 const EditJobPage = () => {
-const { fetchJob, updateJob } = useJobs();
-const navigate = useNavigate();
-const [job, setJob] = useState(null);
-const {id} = useParams();
-const [loading, setLoading] = useState(true);
-const [title, setTitle] = useState('');
-const [type, setType] = useState('');
-const [location, setLocation] = useState('');
-const [description, setDescription] = useState('');
-const [salary, setSalary] = useState('');
-const [companyName, setCompanyName] = useState('');
-const [companyDescription, setCompanyDescription] = useState('');
-const [contactEmail, setContactEmail] = useState('');
-const [contactPhone, setContactPhone] = useState('');
+  const navigate = useNavigate();
+  const { fetchJobs, updateJob } = useJobs();
+  const [job, setJob] = useState(null);
+  const {id} = useParams();
+  const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState('');
+  const [type, setType] = useState('');
+  const [location, setLocation] = useState('');
+  const [description, setDescription] = useState('');
+  const [salary, setSalary] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [companyDescription, setCompanyDescription] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const {checkAuth} = useAuth();
+  const isHome = false;
 
-useEffect(() => {
-  const loadJobs = async () => {
-    try {
-      const data = await fetchJob(id);
-      setJob(data);
-      setTitle(data.title || '');
-      setType(data.type || '');
-      setLocation(data.location || '');
-      setDescription(data.description || '');
-      setSalary(data.salary || '');
-      setCompanyName(data.company.name || '');
-      setCompanyDescription(data.company.description || '');
-      setContactEmail(data.company.contactEmail || '');
-      setContactPhone(data.company.contactPhone || '');
-    } catch (e) {
-      console.log('error fetching data:' + error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  loadJobs();
-}, [id]);
+  checkAuth();
 
-const submitForm = async (e) => {
-  e.preventDefault();
-    const newJob = {
-        id: id,
-        title: title,
-        type: type,
-        description: description,
-        location: location,
-        salary: salary,
-        company: {
-            name: companyName,
-            description: companyDescription,
-            contactEmail: contactEmail,
-            contactPhone: contactPhone,
-        },    
+  useEffect(() => {
+    const loadJobs = async () => {
+      try {
+        const data = await fetchJobs(isHome, id);
+        setJob(data[0]);
+        setTitle(data[0].title || '');
+        setType(data[0].type || '');
+        setLocation(data[0].location || '');
+        setDescription(data[0].description || '');
+        setSalary(data[0].salary || '');
+        setCompanyName(data[0].company_name || '');
+        setCompanyDescription(data[0].company_description || '');
+        setContactEmail(data[0].company_contactEmail || '');
+        setContactPhone(data[0].company_contactPhone || '');
+      } catch (e) {
+        console.log('error fetching data:' + error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadJobs();
+  }, [id]);
+
+  const submitForm = async (e) => {
+    e.preventDefault();
+      const newJob = {
+          id: id,
+          title: title,
+          type: type,
+          description: description,
+          location: location,
+          salary: salary,
+          company: {
+              name: companyName,
+              description: companyDescription,
+              contactEmail: contactEmail,
+              contactPhone: contactPhone,
+          },    
     };
 
     console.log(newJob);
@@ -87,7 +92,7 @@ const submitForm = async (e) => {
               name="type"
               className="border rounded w-full py-2 px-3"
               required
-              value={job.type}
+              value={type}
               onChange={(e) => setType(e.target.value)}
             >
               <option value="Full-Time">Full-Time</option>
@@ -108,7 +113,7 @@ const submitForm = async (e) => {
               className="border rounded w-full py-2 px-3 mb-2"
               placeholder="eg. Beautiful Apartment In Miami"
               required
-              value={job.title}
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
@@ -125,7 +130,7 @@ const submitForm = async (e) => {
               className="border rounded w-full py-2 px-3"
               rows="4"
               placeholder="Add any job duties, expectations, requirements, etc"
-              value={job.description}
+              value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
           </div>
@@ -139,7 +144,7 @@ const submitForm = async (e) => {
               name="salary"
               className="border rounded w-full py-2 px-3"
               required
-              value={job.salary}
+              value={salary}
               onChange={(e) => setSalary(e.target.value)}
             >
               <option value="Under $50K">Under $50K</option>
@@ -165,7 +170,7 @@ const submitForm = async (e) => {
               className="border rounded w-full py-2 px-3 mb-2"
               placeholder="Company Location"
               required
-              value={job.location}
+              value={location}
               onChange={(e) => setLocation(e.target.value)}
             />
           </div>
@@ -182,7 +187,7 @@ const submitForm = async (e) => {
               name="company"
               className="border rounded w-full py-2 px-3"
               placeholder="Company Name"
-              value={job.company.name}
+              value={name}
               onChange={(e) => setCompanyName(e.target.value)}
             />
           </div>
@@ -200,7 +205,7 @@ const submitForm = async (e) => {
               className="border rounded w-full py-2 px-3"
               rows="4"
               placeholder="What does your company do?"
-              value={job.company.description}
+              value={description}
               onChange={(e) => setCompanyDescription(e.target.value)}
             ></textarea>
           </div>
@@ -219,7 +224,7 @@ const submitForm = async (e) => {
               className="border rounded w-full py-2 px-3"
               placeholder="Email address for applicants"
               required
-              value={job.company.contactEmail}
+              value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
             />
           </div>
@@ -236,7 +241,7 @@ const submitForm = async (e) => {
               name="contact_phone"
               className="border rounded w-full py-2 px-3"
               placeholder="Optional phone for applicants"
-              value={job.company.contactPhone}
+              value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
             />
           </div>

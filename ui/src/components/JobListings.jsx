@@ -2,12 +2,13 @@ import { useState, useEffect, useContext } from 'react';
 import { useJobs } from './shared/JobsContext';
 import JobListing from './JobListing';
 import Spinner from './Spinner';
+import { useAuth } from './shared/AuthContext';
 
 const JobListings = ({ isHome = false }) => {
   const { fetchJobs, error } = useJobs();
   const [jobs, setJobs] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const loadJobs = async () => {
       try {

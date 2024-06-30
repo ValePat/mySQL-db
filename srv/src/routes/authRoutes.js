@@ -117,17 +117,17 @@ router.post('/users/refresh', async (req, res) => {
         const sSelect = 'SELECT * FROM AUTH WHERE REFRESH_TOKEN = ?';
         const rows = await db.query(sSelect, [refreshToken]);
         if (rows.length === 0) {
-            return res.sendStatus(403);
+            return res.status(403).send("Invalid or empty refresh token");
         }
 
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, jwtUser) => {
             if (err) return res.sendStatus(403);
             const accessToken = generateAccessToken({ name: jwtUser.name });
             res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' });
-            res.json({ accessToken });
+            res.status(200).send("Access token refreshed");
         });
     } catch (e) {
-        res.status(500).send(e);
+        res.status(500).send("Something went wrong" + e);
     }
 });
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/shared/AuthContext';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const LogoutButton = () => {
   const { logout, isAuthenticated } = useAuth();
@@ -14,7 +15,7 @@ const LogoutButton = () => {
       console.log(e)
     }
     await logout();
-    toast.success('Succesfully logged out')
+    toast.success('Succesfully logged out');
   };
 
   return (
