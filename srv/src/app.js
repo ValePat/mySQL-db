@@ -1,7 +1,6 @@
 // src/app.js
 const express = require('express');
 const morgan = require('morgan');
-const emailsRoute = require('./routes/emailsRoutes');
 const authRoute = require('./routes/authRoutes');
 const jobsRoute = require('./routes/jobsRoutes');
 const app = express();

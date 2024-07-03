@@ -17,7 +17,11 @@ const JobListings = ({ isHome = false }) => {
       } catch (e) {
         console.log('error fetching data:' + error);
       } finally {
-        setLoading(false);
+        if (jobs !== undefined && jobs !== null && jobs !== '' && jobs.length > 0) {
+          setLoading(false);
+        } else {
+          console.log("Authentication failed or something else gone worng fetching data")
+        }
       }
     };
 
