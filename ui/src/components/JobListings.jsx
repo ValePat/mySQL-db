@@ -15,13 +15,10 @@ const JobListings = ({ isHome = false }) => {
         const data = await fetchJobs(isHome);
         setJobs(data);
       } catch (e) {
-        console.log('error fetching data:' + error);
+        console.log('Error fetching data: ', e);
       } finally {
-        if (jobs !== undefined && jobs !== null && jobs !== '' && jobs.length > 0) {
-          setLoading(false);
-        } else {
-          console.log("Authentication failed or something else gone worng fetching data")
-        }
+        // Se i dati sono stati ottenuti, termina il caricamento
+        setLoading(false);
       }
     };
 
@@ -39,12 +36,14 @@ const JobListings = ({ isHome = false }) => {
           <div className="flex justify-center items-center h-64">
             <Spinner loading={loading} />
           </div>
-        ) : (
+        ) : jobs && jobs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {jobs.map((job) => (
               <JobListing key={job.id} job={job} />
             ))}
           </div>
+        ) : (
+          <p>No jobs available.</p>
         )}
       </div>
     </section>

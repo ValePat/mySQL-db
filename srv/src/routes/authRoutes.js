@@ -13,7 +13,9 @@ require('dotenv').config();
 router.get("/", async (req, res) => {
         try {
        
-        const database = await client.connect();
+        const database = 
+        
+        await client.connect();
         console.log("Connected !");
         res.sendStatus(200);
     } catch (e) {
@@ -59,14 +61,23 @@ router.post("/users/login", async (req, res) => {
     }
 
     try {
-        if (await bcrypt.compare(req.body.PASSWORD, dbUser[0].PASSWORD)) {
+        if (await bcrypt.compare(req.body.PASSWORD, dbUser.PASSWORD)) {
             const username = req.body.USER_NAME
             const jwtUser = { name: username }
             const accessToken = generateAccessToken(jwtUser)
             const refreshToken = jwt.sign(jwtUser, process.env.REFRESH_TOKEN_SECRET)
-            const sInsert = 'INSERT INTO AUTH (REFRESH_TOKEN) VALUES (?)';
-            await db.query(sInsert, [refreshToken]);
+            // const sInsert = 'INSERT INTO AUTH (REFRESH_TOKEN) VALUES (?)';
+            // await db.query(sInsert, [refreshToken]);
             //res.json({ accessToken: accessToken, refreshToken: refreshToken })
+
+            // **Sostituzione della parte SQL con l'inserimento in MongoDB**:
+            // Inserisci il refresh token nella collezione MongoDB 'refreshTokens'
+            const refreshTokenCollection = db.collection("auth");
+            await refreshTokenCollection.insertOne({
+                USER_NAME: USER_NAME,
+                refreshToken: refreshToken,
+            });
+
             res.cookie('accessToken', accessToken, { httpOnly: true, secure:true, sameSite: 'strict' });
             res.cookie('refreshToken', refreshToken, { httpOnly: true, secure:true,sameSite: 'strict' });
             res.json({ authenticated: true });
@@ -145,14 +156,26 @@ router.post("/users/register", async (req, res) => {
 
 router.post('/users/refresh', async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
+    const db = client.db("react_jobs");
+
     if (!refreshToken) return res.sendStatus(401);
 
     try {
-        const sSelect = 'SELECT * FROM AUTH WHERE REFRESH_TOKEN = ?';
-        const rows = await db.query(sSelect, [refreshToken]);
-        if (rows.length === 0) {
+        
+        // const sSelect = 'SELECT * FROM AUTH WHERE REFRESH_TOKEN = ?';
+        // const rows = await db.query(sSelect, [refreshToken]);
+        // if (rows.length === 0) {
+        //     return res.status(403).send("Invalid or empty refresh token");
+        // }
+
+        // Verifica del refresh token
+        const refreshTokenCollection = db.collection("auth");
+        const refreshTokenDoc = await refreshTokenCollection.findOne({ refreshToken: refreshToken });
+
+        if (!refreshTokenDoc) {
             return res.status(403).send("Invalid or empty refresh token");
         }
+
 
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, jwtUser) => {
             if (err) return res.sendStatus(403);
@@ -167,19 +190,27 @@ router.post('/users/refresh', async (req, res) => {
 
 router.delete('/users/logout', async (req, res) => {
     const tokenToDelete = req.cookies.refreshToken;
-    const sDelete = 'DELETE FROM AUTH WHERE REFRESH_TOKEN = ?';
+    const refreshTokenCollection = db.collection("refreshTokens");
 
     try {
-        const result = await db.execute(sDelete, [tokenToDelete]);
-        console.log('Refresh token successfully deleted from the database');
+        // Elimina il documento dalla collezione MongoDB
+        const result = await refreshTokenCollection.deleteOne({ refreshToken: tokenToDelete });
 
-        // Clear 
+        if (result.deletedCount === 1) {
+            console.log('Refresh token successfully deleted from the database');
+        } else {
+            console.log('Refresh token not found or already deleted');
+        }
+
+        // Pulisce i cookie di accesso e refresh
         res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: 'strict' });
         res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'strict' });
+
         res.status(204).send({ authenticated: false });
     } catch (e) {
         res.status(500).send(e);
     }
 });
+
 
 module.exports = router;

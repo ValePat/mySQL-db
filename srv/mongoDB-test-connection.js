@@ -89,4 +89,4 @@ async function login () {
   
 }
 
-login();
+run();
