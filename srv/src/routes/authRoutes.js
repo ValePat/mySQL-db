@@ -3,12 +3,79 @@ const { authenticateToken, generateAccessToken } = require ('../services/authSer
 const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
+const client = require('../db/mongo-db')
 const jwt = require ('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-router.get("/", (req, res) => {
-    res.status(200).send("auth route is working")
+
+
+router.get("/", async (req, res) => {
+        try {
+       
+        const database = await client.connect();
+        console.log("Connected !");
+        res.sendStatus(200);
+    } catch (e) {
+        res.status(500).send(e);
+    } finally {
+        await client.close();
+    }
+});
+
+router.post("/users/register", async (req, res) => {    
+    try {
+        await client.connect();
+        const db = client.db("react_jobs");
+        const usersCollection = db.collection("users");
+
+        const hashedPassword = await bcrypt.hash(req.body.PASSWORD, 10);
+        const user = { EMAIL: req.body.USER_EMAIL, USER_NAME: req.body.USER_NAME, PASSWORD: hashedPassword };
+        if( await usersCollection.findOne({ EMAIL: user.EMAIL })) {userFound = true} else {userFound = false}
+
+        const duplicate = await usersCollection.findOne({ EMAIL: user.EMAIL });
+        if(userFound){
+            res.status(500).send("Account già registrato");
+        } else {
+            const result = await usersCollection.insertOne(user);
+            res.status(201).send(result);
+        }
+    } catch (e) {
+        res.status(500).send(e);
+    } finally {
+        await client.close();
+    }
+});
+
+router.post("/users/login", async (req, res) => {
+    
+    const { USER_NAME, PASSWORD } = req.body;
+    const db = client.db("react_jobs");
+    const usersCollection = db.collection("users");
+    const dbUser = await usersCollection.findOne({USER_NAME});
+
+    if (dbUser === null) {
+        return res.status(400).send("Cannot find user");
+    }
+
+    try {
+        if (await bcrypt.compare(req.body.PASSWORD, dbUser[0].PASSWORD)) {
+            const username = req.body.USER_NAME
+            const jwtUser = { name: username }
+            const accessToken = generateAccessToken(jwtUser)
+            const refreshToken = jwt.sign(jwtUser, process.env.REFRESH_TOKEN_SECRET)
+            const sInsert = 'INSERT INTO AUTH (REFRESH_TOKEN) VALUES (?)';
+            await db.query(sInsert, [refreshToken]);
+            //res.json({ accessToken: accessToken, refreshToken: refreshToken })
+            res.cookie('accessToken', accessToken, { httpOnly: true, secure:true, sameSite: 'strict' });
+            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure:true,sameSite: 'strict' });
+            res.json({ authenticated: true });
+        } else {
+            res.send("Password non corretta");
+        }
+    } catch(e) {
+        res.status(500).send(e);
+    }
 });
 
 router.get('/authCheck', (req, res) => {
@@ -49,52 +116,32 @@ router.get("/authorize", authenticateToken, async (req, res) => {
 
 router.post("/users/register", async (req, res) => {    
     try {
+
+        await client.connect();
+        const db = client.db("your_database_name");
+        const usersCollection = db.collection("users");
+
         const hashedPassword = await bcrypt.hash(req.body.PASSWORD, 10);
         const user = { EMAIL: req.body.USER_EMAIL, USER_NAME: req.body.USER_NAME, PASSWORD: hashedPassword };
-        const sSelect = 'SELECT * FROM USERS WHERE USER_EMAIL = ?';
-        const duplicate = await db.execute(sSelect, [user.EMAIL]);
+        //const sSelect = 'SELECT * FROM USERS WHERE USER_EMAIL = ?';
+        //const duplicate = await db.execute(sSelect, [user.EMAIL]);
+
+        const duplicate = await usersCollection.findOne({ EMAIL: user.EMAIL });
         if(duplicate[0].length > 0){
             res.status(500).send("Account già registrato");
         } else {
-            const sInsert = 'INSERT INTO USERS (USER_EMAIL, USER_NAME, PASSWORD) VALUES (?, ?, ?)';
-            const result = await db.execute(sInsert, [user.EMAIL, user.USER_NAME, user.PASSWORD]);
+           //const sInsert = 'INSERT INTO USERS (USER_EMAIL, USER_NAME, PASSWORD) VALUES (?, ?, ?)';
+            //const result = await db.execute(sInsert, [user.EMAIL, user.USER_NAME, user.PASSWORD]);
+            const result = await usersCollection.insertOne(user);
             res.status(201).send(result);
         }
     } catch (e) {
         res.status(500).send(e);
+    } finally {
+        await client.close();
     }
 });
 
-router.post("/users/login", async (req, res) => {
-    
-    const { USER_NAME, PASSWORD } = req.body;
-    const sSelect = 'SELECT * FROM USERS WHERE USER_NAME = ?';
-    const rows = await db.execute(sSelect, [USER_NAME]);
-    const dbUser = rows[0];
-
-    if (!dbUser || dbUser.length == 0) {
-        return res.status(400).send("Cannot find user");
-    }
-
-    try {
-        if (await bcrypt.compare(req.body.PASSWORD, dbUser[0].PASSWORD)) {
-            const username = req.body.USER_NAME
-            const jwtUser = { name: username }
-            const accessToken = generateAccessToken(jwtUser)
-            const refreshToken = jwt.sign(jwtUser, process.env.REFRESH_TOKEN_SECRET)
-            const sInsert = 'INSERT INTO AUTH (REFRESH_TOKEN) VALUES (?)';
-            await db.query(sInsert, [refreshToken]);
-            //res.json({ accessToken: accessToken, refreshToken: refreshToken })
-            res.cookie('accessToken', accessToken, { httpOnly: true, secure:true, sameSite: 'strict' });
-            res.cookie('refreshToken', refreshToken, { httpOnly: true, secure:true,sameSite: 'strict' });
-            res.json({ authenticated: true });
-        } else {
-            res.send("Password non corretta");
-        }
-    } catch(e) {
-        res.status(500).send(e);
-    }
-});
 
 router.post('/users/refresh', async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
