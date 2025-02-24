@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { authenticateToken } = require('../services/authService');
 const client = require('../db/mongo-db');
+const { ObjectId } = require('mongodb');
 
 require('dotenv').config();
 
@@ -14,7 +15,7 @@ router.get("/", (req, res) => {
 });
 
 // Recupera tutti i lavori
-router.get('/getJobs', authenticateToken, async (req, res) => {
+router.get('/getJobs', async (req, res) => {
     const db = client.db("react_jobs");
     const limit = req.query._limit ? parseInt(req.query._limit) : 10;
     try {
@@ -27,12 +28,12 @@ router.get('/getJobs', authenticateToken, async (req, res) => {
 });
 
 // Recupera un lavoro specifico tramite ID
-router.get('/getJobs/:id', authenticateToken, async (req, res) => {
+router.get('/getJobs/:id', async (req, res) => {
     const { id } = req.params;
     const db = client.db("react_jobs");
     try {
         const jobsCollection = db.collection("jobs");  // Collezione MongoDB "jobs"
-        const job = await jobsCollection.findOne({ _id: id });
+        const job = await jobsCollection.findOne({ _id:  new ObjectId(id) });
         if (!job) {
             return res.status(404).json({ message: 'Job not found' });
         }

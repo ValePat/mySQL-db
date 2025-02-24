@@ -17,7 +17,7 @@ export const JobsProvider = ({ children }) => {
     }
 
     try {
-      const res = await axios.get(apiUrl, { withCredentials: true });
+      const res = await axios.get(apiUrl);
       //const res = await fetch(apiUrl);
       const data = await res.data;
       //setJobs(data);
@@ -57,7 +57,7 @@ export const JobsProvider = ({ children }) => {
 
   const updateJob = async (updatedJob) => {
     try {
-        const res = await axios.put(`/api/jobs/updateJob/${updatedJob.id}`, updatedJob, {
+        const res = await axios.put(`/api/jobs/updateJob/${updatedJob._id}`, updatedJob, {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true  // Ensure credentials are sent
         });
