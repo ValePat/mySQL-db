@@ -1,0 +1,17 @@
+FROM node:18
+WORKDIR /app
+
+# Copia i file package.json dal backend
+COPY srv/package*.json ./
+
+# Installa solo le dipendenze necessarie in produzione
+RUN npm install --production
+
+# Copia tutto il backend
+COPY srv/. .
+
+# Espone la porta per il servizio di auth
+EXPOSE 3000
+
+# Avvia auth.js
+CMD ["node", "authSrv.js"]

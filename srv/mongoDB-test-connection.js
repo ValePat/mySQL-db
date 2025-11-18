@@ -1,6 +1,6 @@
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const uri = "mongodb+srv://userOne:CEK1d9SyJArXnXAK@cluster0.sect1ps.mongodb.net/?appName=Cluster0";
 
 const client = new MongoClient(uri, {

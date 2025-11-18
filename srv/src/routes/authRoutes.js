@@ -5,7 +5,7 @@ const router = express.Router();
 const db = require('../db/database');
 const client = require('../db/mongo-db')
 const jwt = require ('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 
