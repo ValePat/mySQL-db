@@ -11,10 +11,7 @@ require('dotenv').config();
 
 
 router.get("/", async (req, res) => {
-        try {
-       
-        const database = 
-        
+    try {        
         await client.connect();
         console.log("Connected !");
         res.sendStatus(200);
@@ -129,7 +126,7 @@ router.post("/users/register", async (req, res) => {
     try {
 
         await client.connect();
-        const db = client.db("your_database_name");
+        const db = client.db("react_jobs");
         const usersCollection = db.collection("users");
 
         const hashedPassword = await bcrypt.hash(req.body.PASSWORD, 10);
