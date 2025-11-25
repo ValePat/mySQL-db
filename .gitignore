@@ -1,7 +1,7 @@
 .vscode/
 .env
 node_modules/
-launch.json+
+launch.json
 /srv/node_modules
 /srv/mongoDB-test-connection.js
 /srv/test.connection.js
