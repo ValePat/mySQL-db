@@ -11,7 +11,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3000', // Replace with your frontend domain
+  origin: 'https://react-jobs-ui-zeta.vercel.app', // Replace with your frontend domain
   credentials: true
 }));
 
