@@ -13,7 +13,7 @@ export const JobsProvider = ({ children }) => {
     if(id !== '' && id !== undefined  && id !== null){
       apiUrl = `/api/jobs/getJobs/${id}`
     } else {
-      apiUrl = isHome ? '/api/jobs/getJobs/?_limit=3' : '/api/jobs/getJobs';
+      apiUrl = isHome ? '/api/jobs/getJobs?_limit=3' : '/api/jobs/getJobs';
     }
 
     try {
